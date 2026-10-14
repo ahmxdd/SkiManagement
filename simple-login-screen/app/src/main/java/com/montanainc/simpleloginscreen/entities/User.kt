@@ -4,7 +4,7 @@ import androidx.room3.ColumnInfo
 import androidx.room3.Entity
 import androidx.room3.PrimaryKey
 
-@Entity
+@Entity(tableName = "users")
 data class User(
     @PrimaryKey val uid: Int,
     @ColumnInfo(name = "first_name" ) val firstName: String,
