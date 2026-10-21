@@ -103,7 +103,10 @@ fun HeadingTextComponent(value: String) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyTextFieldComponent(labelValue: String, icon: ImageVector) {
+fun MyTextFieldComponent(labelValue: String,
+                         icon: ImageVector,
+                         value: String="",
+                         onValueChange: (String) -> Unit = {}) {
     var textValue by remember {
         mutableStateOf("")
     }
@@ -111,10 +114,8 @@ fun MyTextFieldComponent(labelValue: String, icon: ImageVector) {
         label = {
             Text(text = labelValue)
         },
-        value = textValue,
-        onValueChange = {
-            textValue = it
-        },
+        value = value,
+        onValueChange = onValueChange,
         colors = TextFieldDefaults.outlinedTextFieldColors(
             focusedBorderColor = AccentColor,
             focusedLabelColor = AccentColor,
@@ -137,7 +138,10 @@ fun MyTextFieldComponent(labelValue: String, icon: ImageVector) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PasswordTextFieldComponent(labelValue: String, icon: ImageVector) {
+fun PasswordTextFieldComponent(labelValue: String,
+                               icon: ImageVector,
+                               value: String,
+                               onValueChange: (String) -> Unit = {}) {
     var password by remember {
         mutableStateOf("")
     }
@@ -149,10 +153,8 @@ fun PasswordTextFieldComponent(labelValue: String, icon: ImageVector) {
         label = {
             Text(text = labelValue)
         },
-        value = password,
-        onValueChange = {
-            password = it
-        },
+        value = value,
+        onValueChange = onValueChange,
         colors = TextFieldDefaults.outlinedTextFieldColors(
             focusedBorderColor = AccentColor,
             focusedLabelColor = AccentColor,
@@ -245,7 +247,8 @@ fun BottomComponent(
     textQuery: String,
     textClickable: String,
     action: String,
-    navController: NavHostController
+    navController: NavHostController,
+    onButtonClicked: () -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -256,7 +259,7 @@ fun BottomComponent(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Button(
-                onClick = { /*TODO*/ },
+                onClick = onButtonClicked,
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(Color.Transparent)
             ) {
