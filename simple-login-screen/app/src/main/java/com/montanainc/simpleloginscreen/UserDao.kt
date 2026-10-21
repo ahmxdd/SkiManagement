@@ -8,6 +8,8 @@ import androidx.room3.Query
 import com.montanainc.simpleloginscreen.entities.User
 import kotlinx.coroutines.flow.Flow
 
+import androidx.room3.Update
+
 @Dao
 interface UserDao {
     @Query("SELECT * FROM user")
@@ -24,6 +26,12 @@ interface UserDao {
 
     @Delete
     suspend fun removeUser(user: User)
+
+    @Query("SELECT * FROM user WHERE email = :email LIMIT 1")
+    suspend fun getUserByEmail(email: String): User?
+
+    @Update
+    suspend fun updateUser(user: User)
 
 
 }
