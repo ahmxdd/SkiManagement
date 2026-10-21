@@ -30,8 +30,10 @@ class UserViewModel(private val userRepo: UserRepository) :  ViewModel() {
             phoneNumber = details.phoneNumber,
             password = details.password
         )
-        userRepo.insertUser(user)
-        onSuccess()
+            if (userRepo.getUserByEmail(details.email, details.password) == null) {
+                userRepo.insertUser(user)
+                onSuccess()
+            }
         }
 
     }

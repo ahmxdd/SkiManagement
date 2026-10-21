@@ -72,7 +72,7 @@ fun LoginScreen(
                 navController,
                 onButtonClicked = {
                     viewModel.loginUser {
-                        navController.navigate("Signup")
+                        navController.navigate("Equipment")
                     }
                 }
             )
