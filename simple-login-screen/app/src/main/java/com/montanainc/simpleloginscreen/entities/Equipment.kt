@@ -13,6 +13,6 @@ data class Equipment(
     val brand: String,
     @ColumnInfo(name = "skill_level") val skillLevel: String,  // BEGINNER, INTERMEDIATE, ADVANCED
     @ColumnInfo(name = "price_per_day") val pricePerDay: Double,
-    val status: String = "AVAILABLE", // AVAILABLE, RENTED
+    @ColumnInfo(name = "status") val status: String, // AVAILABLE, RENTED
     @ColumnInfo(name = "is_broken") val isBroken: Boolean = false
 )

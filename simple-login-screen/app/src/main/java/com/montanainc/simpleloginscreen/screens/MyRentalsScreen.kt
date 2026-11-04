@@ -7,19 +7,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-
-data class RentalDisplay(val bookingId: String, val itemName: String, var status: String)
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.montanainc.simpleloginscreen.viewmodel.AppViewModelProvider
+import com.montanainc.simpleloginscreen.viewmodel.RentalViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyRentalsScreen(onBack: () -> Unit) {
+fun MyRentalsScreen(userId: Int, onBack: () -> Unit, viewModel: RentalViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
     // Sample data until the backend is hooked up
-    val rentals = remember {
-        mutableStateListOf(
-            RentalDisplay("A1B2C3D4", "Rossignol Skis", "CONFIRMED"),
-            RentalDisplay("E5F6G7H8", "Burton Snowboard", "PENDING")
-        )
-    }
+    val rentals by viewModel.getRentalForUser(userId).collectAsState(initial = emptyList())
 
     Scaffold(
         topBar = {
@@ -40,13 +36,12 @@ fun MyRentalsScreen(onBack: () -> Unit) {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Column {
-                            Text(rental.itemName, style = MaterialTheme.typography.titleMedium)
+                            Text("Equipment ${rental.equipmentId}", style = MaterialTheme.typography.titleMedium)
                             Text("Booking ${rental.bookingId} · ${rental.status}")
                         }
                         if (rental.status != "CANCELLED") {
                             OutlinedButton(onClick = {
-                                val i = rentals.indexOf(rental)
-                                rentals[i] = rental.copy(status = "CANCELLED")
+                                viewModel.cancelRental(rentalId = rental.id)
                             }) { Text("Cancel") }
                         }
 

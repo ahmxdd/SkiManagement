@@ -1,10 +1,12 @@
-package com.montanainc.simpleloginscreen.screens
+package com.montanainc.simpleloginscreen.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.montanainc.simpleloginscreen.data.UserRepository
 import com.montanainc.simpleloginscreen.entities.User
+import com.montanainc.simpleloginscreen.screens.UserDetails
+import com.montanainc.simpleloginscreen.screens.UserUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,21 +40,27 @@ class UserViewModel(private val userRepo: UserRepository) :  ViewModel() {
 
     }
 
-    fun updateUiState(newDetails:UserDetails) {
+    fun updateUiState(newDetails: UserDetails) {
         _uiState.update { currentState ->
             currentState.copy(userDetails = newDetails)
         }
     }
-    fun loginUser(onSuccess: () -> Unit) {
+    fun loginUser(onSuccess: (User) -> Unit) {
         viewModelScope.launch {
             val details = uiState.value.userDetails
             val newUser = userRepo.getUserByEmail(details.email, details.password)
             if (newUser != null) {
-                onSuccess()
+                _uiState.update { it.copy(loggedInUser = newUser) }
+                onSuccess(newUser)
             }
             else {
                 Log.d("Userviewmodel", "User is not valid")
             }
+        }
+    }
+    fun resetPassword(newPassword: String, email: String) {
+        viewModelScope.launch {
+            userRepo.updatePassword(newPassword, email)
         }
     }
 

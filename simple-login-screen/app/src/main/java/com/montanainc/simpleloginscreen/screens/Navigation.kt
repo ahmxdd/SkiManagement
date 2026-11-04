@@ -21,25 +21,51 @@ fun Navigation() {
         composable(route = "Signup") {
             SignupScreen(navController)
         }
-        composable(route = "Equipment") {
+        composable(route = "Reset") {
+            PasswordResetScreen(navController)
+        }
+        // Accept userId parameter
+        composable(
+            route = "Equipment/{userId}/{email}",
+            arguments = listOf(navArgument("userId") { type = NavType.IntType },navArgument("email") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getInt("userId") ?: 0
+            val email = backStackEntry.arguments?.getString(("email")) ?: ""
             EquipmentListScreen(
                 equipment = sampleEquipment,
-                onBook = { item -> navController.navigate("Booking/${item.id}") },
-                onMyRentals = { navController.navigate("MyRentals") }
+                onBook = { item -> if (item.status=="AVAILABLE") {navController.navigate("Booking/$userId/${item.id}/${email}")}
+                else {
+
+                }},
+                onMyRentals = { navController.navigate("MyRentals/$userId") }
             )
         }
         composable(
-            route = "Booking/{equipmentId}",
-            arguments = listOf(navArgument("equipmentId") { type = NavType.IntType })
+            route = "Booking/{userId}/{equipmentId}/{email}",
+            arguments = listOf(navArgument("equipmentId") { type = NavType.IntType },
+                navArgument("userId") { type = NavType.IntType}, navArgument("email") { type = NavType.StringType}),
+
         ) { backStackEntry ->
-            val id = backStackEntry.arguments?.getInt("equipmentId")
+            val equipmentId = backStackEntry.arguments?.getInt("equipmentId")
+            val userId = backStackEntry.arguments?.getInt(("userId")) ?: 0
+            val email = backStackEntry.arguments?.getString(("email")) ?: ""
             BookingScreen(
-                equipment = sampleEquipment.find { it.id == id },
-                onDone = { navController.popBackStack() }
+                equipment = sampleEquipment.find { it.id == equipmentId },
+                onDone = { navController.popBackStack() },
+                userId = userId,
+                userEmail = email
+
             )
         }
-        composable(route = "MyRentals") {
-            MyRentalsScreen(onBack = { navController.popBackStack() })
+        composable(
+            route = "MyRentals/{userId}",
+            arguments = listOf(navArgument("userId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getInt("userId") ?: 0
+            MyRentalsScreen(
+                userId = userId, // 👈 Pass userId to MyRentalsScreen
+                onBack = { navController.popBackStack() }
+            )
         }
     }
 }

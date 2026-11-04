@@ -14,6 +14,7 @@ interface UserRepository {
 
     suspend fun deleteUser(user: User)
 
+    suspend fun updatePassword(newPassword: String, email: String)
 
 
 

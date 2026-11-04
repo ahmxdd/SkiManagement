@@ -60,7 +60,26 @@ fun EquipmentListScreen(
 }
 
 val sampleEquipment = listOf(
-    Equipment(1, "Rossignol Skis", "SKI", "160", "Rossignol", "BEGINNER", 45.0),
-    Equipment(2, "Burton Snowboard", "SNOWBOARD", "152", "Burton", "INTERMEDIATE", 50.0),
+    Equipment(
+        1,
+        "Rossignol Skis",
+        "SKI",
+        "160",
+        "Rossignol",
+        "BEGINNER",
+        45.0,
+        status = "AVAILABLE",
+    ),
+    Equipment(
+        2,
+        "Burton Snowboard",
+        "SNOWBOARD",
+        "152",
+        "Burton",
+        "INTERMEDIATE",
+        50.0,
+        status = "AVAILABLE",
+
+    ),
     Equipment(3, "Atomic Skis", "SKI", "170", "Atomic", "ADVANCED", 60.0, status = "RENTED")
 )

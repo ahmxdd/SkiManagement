@@ -1,4 +1,4 @@
-package com.montanainc.simpleloginscreen.screens
+package com.montanainc.simpleloginscreen.viewmodel
 
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
@@ -11,6 +11,11 @@ object AppViewModelProvider {
         initializer {
             UserViewModel(
                 userApplication().container.userRepository
+            )
+        }
+        initializer {
+            RentalViewModel(
+                userApplication().container.rentalRepository
             )
         }
     }

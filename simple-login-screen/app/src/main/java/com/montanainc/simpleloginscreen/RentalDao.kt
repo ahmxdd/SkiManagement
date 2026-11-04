@@ -19,4 +19,6 @@ interface RentalDao {
 
     @Query("UPDATE rental SET status = :status WHERE id = :rentalId")
     suspend fun setStatus(rentalId: Int, status: String)
+
+
 }
