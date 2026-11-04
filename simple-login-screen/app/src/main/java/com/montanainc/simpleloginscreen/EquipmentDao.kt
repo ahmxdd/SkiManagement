@@ -30,4 +30,10 @@ interface EquipmentDao {
 
     @Query("UPDATE equipment SET status = :status WHERE id = :id")
     suspend fun setStatus(id: Int, status: String)
+
+    @Query("SELECT * FROM equipment ORDER BY name")
+    fun getAll(): Flow<List<Equipment>>
+
+    @Query("SELECT COUNT(*) FROM equipment")
+    suspend fun count(): Int
 }
