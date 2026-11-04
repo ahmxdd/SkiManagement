@@ -27,6 +27,7 @@ fun BookingScreen(equipment: Equipment?, userId: Int, userEmail: String, onDone:
     val days = rentalUiState.days
     val waiverSigned = rentalUiState.waverSigned
     val bookingId = rentalUiState.bookingId
+    val equipmentRental = rentalUiState.equipment
 
 
 
@@ -41,6 +42,7 @@ fun BookingScreen(equipment: Equipment?, userId: Int, userEmail: String, onDone:
                 OutlinedTextField(height, {viewModel.updateHeight(it) }, label = { Text("Height (cm)") }, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(age, {viewModel.updateAge(it)}, label = { Text("Age") }, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(days, { viewModel.updateDays(it) }, label = { Text("Number of days") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(equipmentRental, { viewModel.updateEquipment(it) }, label = { Text("Equipment you will already bring") }, modifier = Modifier.fillMaxWidth())
                 Text("Expected cost: $${"%.2f".format(cost)}")
                 Row {
                     Checkbox(checked = waiverSigned, onCheckedChange = { viewModel.updateWaiver(it) })

@@ -6,6 +6,7 @@ data class RentalUiState (
     val heightCm: String = "",
     val age: String = "",
     val days: String = "",
+    val equipment: String = "",
     val waverSigned: Boolean = false,
 
     val bookingId: String? = null,

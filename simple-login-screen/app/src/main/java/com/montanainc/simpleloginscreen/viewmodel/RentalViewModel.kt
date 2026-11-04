@@ -55,6 +55,11 @@ class RentalViewModel(private val rentalRepo: RentalRepository) : ViewModel() {
             currentState.copy(waverSigned = signed)
         }
     }
+    fun updateEquipment(equipment: String) {
+        _uiState.update { currentState ->
+            currentState.copy(equipment = equipment)
+        }
+    }
 
     fun updateAge(age: String) {
         _uiState.update { currentState ->
