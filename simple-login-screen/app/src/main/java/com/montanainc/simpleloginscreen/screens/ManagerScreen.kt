@@ -1,6 +1,7 @@
 @file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 package com.montanainc.simpleloginscreen.screens
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -8,22 +9,33 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.montanainc.simpleloginscreen.RentalDetails
+import com.montanainc.simpleloginscreen.RentalSchedule
+import com.montanainc.simpleloginscreen.calculateLateFee
 import com.montanainc.simpleloginscreen.entities.Equipment
-
-@OptIn(ExperimentalMaterial3Api::class)
+import com.montanainc.simpleloginscreen.money
 
 @Composable
 fun ManagerScreen(onBack: () -> Unit) {
     val vm: ManagerViewModel = viewModel(factory = DbViewModelFactory(LocalContext.current))
     val inventory by vm.inventory.collectAsState()
     val rentals by vm.rentals.collectAsState()
+    val revenueRows by vm.revenueRows.collectAsState()
+    val feedback by vm.feedback.collectAsState()
+    val waitlist by vm.waitlist.collectAsState()
+    val discounts by vm.discounts.collectAsState()
+    val banner by vm.banner.collectAsState()
+    val message by vm.message.collectAsState()
+
     var tab by remember { mutableStateOf(0) }
-    val tabs = listOf("Inventory", "Rentals", "Returns", "Add")
+    val tabs = listOf(
+        "Inventory", "Rentals", "Returns", "Schedule", "Revenue",
+        "Feedback", "Waitlist", "Promos", "Map", "Add"
+    )
 
     Scaffold(
         topBar = {
@@ -34,22 +46,51 @@ fun ManagerScreen(onBack: () -> Unit) {
         }
     ) { padding ->
         Column(Modifier.padding(padding)) {
-            TabRow(selectedTabIndex = tab) {
+            // Scrollable row of chips instead of a tab bar, since there are 10 sections
+            Row(
+                Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 tabs.forEachIndexed { i, title ->
-                    Tab(selected = tab == i, onClick = { tab = i }, text = { Text(title) })
+                    FilterChip(selected = tab == i, onClick = { tab = i }, label = { Text(title) })
                 }
             }
-            when (tab) {
-                0 -> InventoryTab(inventory, onToggleBroken = { vm.toggleBroken(it) })
-                1 -> RentalsTab(rentals, onCheckIn = { vm.checkIn(it) })
-                2 -> ReturnsTab(rentals, onReturn = { vm.confirmReturn(it) })
-                3 -> AddEquipmentTab(onSave = { vm.addEquipment(it) })
+            message?.let {
+                Card(Modifier.fillMaxWidth().padding(horizontal = 12.dp)) {
+                    Row(
+                        Modifier.padding(start = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(it, Modifier.weight(1f))
+                        TextButton(onClick = { vm.message.value = null }) { Text("OK") }
+                    }
+                }
+            }
+            Box(Modifier.weight(1f).fillMaxWidth()) {
+                when (tab) {
+                    0 -> InventoryTab(inventory, onToggleBroken = { vm.toggleBroken(it) })
+                    1 -> RentalsTab(rentals, onCheckIn = { vm.checkIn(it) })
+                    2 -> ReturnsTab(rentals, onReturn = { vm.confirmReturn(it) })
+                    3 -> ScheduleTab(rentals)
+                    4 -> RevenueTab(revenueRows)
+                    5 -> FeedbackTab(feedback)
+                    6 -> WaitlistTab(waitlist, inventory)
+                    7 -> PromosTab(
+                        discounts = discounts,
+                        banner = banner,
+                        onAddDiscount = { code, amount -> vm.addDiscount(code, amount) },
+                        onToggleDiscount = { vm.toggleDiscount(it) },
+                        onSaveBanner = { text, active -> vm.saveBanner(text, active) }
+                    )
+                    8 -> TrailMapTab()
+                    9 -> AddEquipmentTab(onSave = { vm.addEquipment(it) })
+                }
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun InventoryTab(inventory: List<Equipment>, onToggleBroken: (Equipment) -> Unit) {
     val available = inventory.count { it.status == "AVAILABLE" && !it.isBroken }
@@ -82,7 +123,7 @@ private fun InventoryTab(inventory: List<Equipment>, onToggleBroken: (Equipment)
 }
 
 @Composable
-private fun RentalsTab(rentals: List<RentalDetails>, onCheckIn: (RentalDetails) -> Unit) {
+private fun RentalsTab(rentals: List<RentalSchedule>, onCheckIn: (RentalSchedule) -> Unit) {
     val active = rentals.filter { it.status != "RETURNED" && it.status != "CANCELLED" }
     if (active.isEmpty()) {
         Text("No active rentals.", Modifier.padding(16.dp))
@@ -96,8 +137,8 @@ private fun RentalsTab(rentals: List<RentalDetails>, onCheckIn: (RentalDetails) 
                     Text("Customer: ${r.customer}")
                     Text("Equipment Owned: ${r.equipment}")
                     Text("Special Request: ${r.request}")
-                    Text("Booking ${r.bookingId} · ${r.status}")
-                    if (r.status == "RESERVED") {
+                    Text("Booking ${r.bookingId} · ${r.status} · ${money(r.totalCost)}")
+                    if (r.status in CHECK_IN_STATUSES) {
                         Spacer(Modifier.height(8.dp))
                         Button(onClick = { onCheckIn(r) }) { Text("Check In Customer") }
                     }
@@ -108,7 +149,7 @@ private fun RentalsTab(rentals: List<RentalDetails>, onCheckIn: (RentalDetails) 
 }
 
 @Composable
-private fun ReturnsTab(rentals: List<RentalDetails>, onReturn: (RentalDetails) -> Unit) {
+private fun ReturnsTab(rentals: List<RentalSchedule>, onReturn: (RentalSchedule) -> Unit) {
     val outNow = rentals.filter { it.status == "CHECKED_OUT" || it.status == "OVERDUE" }
     if (outNow.isEmpty()) {
         Text("No equipment waiting to be returned.", Modifier.padding(16.dp))
@@ -116,11 +157,15 @@ private fun ReturnsTab(rentals: List<RentalDetails>, onReturn: (RentalDetails) -
     }
     LazyColumn(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         items(outNow, key = { it.id }) { r ->
+            val fee = calculateLateFee(r.endDate, r.pricePerDay)
             Card(Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(16.dp)) {
                     Text(r.itemName, style = MaterialTheme.typography.titleMedium)
                     Text("Customer: ${r.customer}")
-                    Text(if (r.status == "OVERDUE") "OVERDUE: late fee applies" else "Currently out")
+                    Text(
+                        if (fee > 0) "OVERDUE: late fee of ${money(fee)} will be added"
+                        else "Due back ${formatDate(r.endDate)}"
+                    )
                     Spacer(Modifier.height(8.dp))
                     Button(onClick = { onReturn(r) }) { Text("Confirm Return") }
                 }

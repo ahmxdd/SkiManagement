@@ -39,6 +39,8 @@ fun BookingScreen(
     var showWaiver by remember { mutableStateOf(false) }
 
     val cost = (equipment?.pricePerDay ?: 0.0) * (days.toIntOrNull() ?: 0)
+    val extras = rememberBookingExtras()
+    BookingExtrasEffects(extras, rentalUiState, cost, userEmail, equipment?.name)
 
     Scaffold(topBar = { TopAppBar(title = { Text("Book ${equipment?.name ?: "Equipment"}") }) }) { padding ->
         Column(
@@ -52,6 +54,7 @@ fun BookingScreen(
                 OutlinedTextField(equipmentRental, { viewModel.updateEquipment(it) }, label = { Text("Equipment you will already bring") }, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(specialRequest, { viewModel.updateSpecialRequests(it) }, label = { Text("Special Requests") }, modifier = Modifier.fillMaxWidth())
                 Text("Expected cost: $${"%.2f".format(cost)}")
+                DiscountSection(extras, cost)
                 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(
@@ -103,6 +106,7 @@ fun BookingScreen(
 
                 Text("Booking confirmed!", style = MaterialTheme.typography.headlineSmall)
                 Text("Your booking ID: $bookingId")
+                TotalToPay(extras, cost)
                 Text("Present this ID at the shop to pay.")
                 Button(
                     onClick = {
