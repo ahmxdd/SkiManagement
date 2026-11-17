@@ -81,10 +81,26 @@ class ManagerViewModel(
             if (rentalDao.count() == 0) {
                 val now = System.currentTimeMillis()
                 val day = 86_400_000L
-                rentalDao.insert(Rental(bookingId = "A1B2C3D4", userId = 0, equipmentId = 1,
-                    startDate = now, endDate = now + day, status = "RESERVED"))
-                rentalDao.insert(Rental(bookingId = "J9K0L1M2", userId = 0, equipmentId = 3,
-                    startDate = now - 3 * day, endDate = now - day, status = "OVERDUE"))
+                rentalDao.insert(Rental(
+                    bookingId = "A1B2C3D4",
+                    userId = 0,
+                    equipmentId = 1,
+                    startDate = now,
+                    endDate = now + day,
+                    status = "RESERVED",
+                    specialRequest = "TODO()",
+                    equipmentInfo = "TODO()"
+                ))
+                rentalDao.insert(Rental(
+                    bookingId = "J9K0L1M2",
+                    userId = 0,
+                    equipmentId = 3,
+                    startDate = now - 3 * day,
+                    endDate = now - day,
+                    status = "OVERDUE",
+                    specialRequest = "TODO()",
+                    equipmentInfo = "TODO()"
+                ))
             }
         }
     }

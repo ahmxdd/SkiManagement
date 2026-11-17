@@ -39,6 +39,7 @@ fun Navigation() {
                         navController.navigate("Booking/$userId/${item.id}/$email")
                     }
                 },
+                onAbout = { navController.navigate(("About"))},
                 onMyRentals = { navController.navigate("MyRentals/$userId") },
                 onManager = { navController.navigate("Manager") }
             )
@@ -73,6 +74,9 @@ fun Navigation() {
         }
         composable(route = "Manager") {
             ManagerScreen(onBack = { navController.popBackStack() })
+        }
+        composable(route = "About") {
+            AboutScreen(navController)
         }
     }
 }

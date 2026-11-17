@@ -21,6 +21,23 @@ interface RentalDao {
     @Query("UPDATE rental SET status = :status WHERE id = :rentalId")
     suspend fun setStatus(rentalId: Int, status: String)
 
+    @Query("""
+        SELECT r.id AS id, 
+               r.booking_id AS booking_id, 
+               r.status AS status,
+               r.equipment_id AS equipment_id, 
+               e.name AS item_name,
+               r.special_request AS request,
+               r.equipment_info AS equipment,
+               COALESCE(u.first_name || ' ' || u.last_name, 'Unknown') AS customer
+
+        FROM rental r
+        JOIN equipment e ON r.equipment_id = e.id
+        LEFT JOIN users u ON r.user_id = u.uid
+        ORDER BY r.start_date DESC
+    """)
+    suspend fun getAllDetailsForExport(): List<RentalDetails>
+
     @Query("SELECT COUNT(*) FROM rental")
     suspend fun count(): Int
 
@@ -30,7 +47,10 @@ interface RentalDao {
                r.status AS status,
                r.equipment_id AS equipment_id, 
                e.name AS item_name,
+               r.special_request AS request,
+               r.equipment_info AS equipment,
                COALESCE(u.first_name || ' ' || u.last_name, 'Unknown') AS customer
+
         FROM rental r
         JOIN equipment e ON r.equipment_id = e.id
         LEFT JOIN users u ON r.user_id = u.uid
@@ -45,5 +65,7 @@ data class RentalDetails(
     val status: String,
     @ColumnInfo(name = "equipment_id") val equipmentId: Int,
     @ColumnInfo(name = "item_name") val itemName: String,
-    val customer: String
+    val customer: String,
+    val equipment: String,
+    val request: String
 )

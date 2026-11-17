@@ -8,6 +8,7 @@ import com.montanainc.simpleloginscreen.database.AppDatabase
 interface AppContainer {
     val userRepository: UserRepository
     val rentalRepository: RentalRepository
+    val equipmentRepository: EquipmentRepository
 }
 
 class DefaultAppContainer(private val context: Context) : AppContainer {
@@ -16,5 +17,8 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
     }
     override val rentalRepository: RentalRepository by lazy {
         OfflineRentalRepository(AppDatabase.getDatabase(context).rentalDao())
+    }
+    override val equipmentRepository: EquipmentRepository by lazy {
+        OfflineEquipmentRepository(AppDatabase.getDatabase(context).equipmentDao())
     }
 }

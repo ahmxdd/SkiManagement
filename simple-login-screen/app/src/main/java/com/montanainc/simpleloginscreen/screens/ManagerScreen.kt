@@ -94,6 +94,8 @@ private fun RentalsTab(rentals: List<RentalDetails>, onCheckIn: (RentalDetails) 
                 Column(Modifier.padding(16.dp)) {
                     Text(r.itemName, style = MaterialTheme.typography.titleMedium)
                     Text("Customer: ${r.customer}")
+                    Text("Equipment Owned: ${r.equipment}")
+                    Text("Special Request: ${r.request}")
                     Text("Booking ${r.bookingId} · ${r.status}")
                     if (r.status == "RESERVED") {
                         Spacer(Modifier.height(8.dp))

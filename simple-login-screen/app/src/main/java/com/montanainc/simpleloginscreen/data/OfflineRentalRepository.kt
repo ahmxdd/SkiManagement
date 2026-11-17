@@ -13,4 +13,5 @@ class OfflineRentalRepository (private val rentalDao: RentalDao) : RentalReposit
 
     override fun getForUser(userId: Int): Flow<List<Rental>> = rentalDao.getForUser(userId)
 
+    override suspend fun getRentalExportDetails() = rentalDao.getAllDetailsForExport()
 }

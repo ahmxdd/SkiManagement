@@ -15,7 +15,8 @@ object AppViewModelProvider {
         }
         initializer {
             RentalViewModel(
-                userApplication().container.rentalRepository
+                userApplication().container.rentalRepository,
+                userApplication().container.equipmentRepository
             )
         }
     }

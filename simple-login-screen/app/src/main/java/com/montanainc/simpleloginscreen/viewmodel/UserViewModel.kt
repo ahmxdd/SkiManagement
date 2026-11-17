@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.printStackTrace
 
 class UserViewModel(private val userRepo: UserRepository) :  ViewModel() {
     private val _uiState = MutableStateFlow(UserUiState())
@@ -23,25 +24,30 @@ class UserViewModel(private val userRepo: UserRepository) :  ViewModel() {
     // Called when the user clicks on "Register"
 
     fun registerUser(onSuccess: () -> Unit) {
-        viewModelScope.launch {
-        val details = uiState.value.userDetails
-        val user = User(
-            firstName = details.firstName,
-            lastName = details.lastName,
-            email = details.email,
-            phoneNumber = details.phoneNumber,
-            password = details.password
-        )
-            if (userRepo.getUserByEmail(details.email, details.password) == null) {
-                userRepo.insertUser(user)
-                onSuccess()
-            }
-        }
 
+            viewModelScope.launch {
+                val details = uiState.value.userDetails
+                val user = User(
+                    firstName = details.firstName,
+                    lastName = details.lastName,
+                    email = details.email,
+                    phoneNumber = details.phoneNumber,
+                    password = details.password
+                )
+                if (userRepo.getUserByEmail(details.email, details.password) == null) {
+                    try {
+                        userRepo.insertUser(user)
+                        onSuccess()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
     }
 
     fun updateUiState(newDetails: UserDetails) {
         _uiState.update { currentState ->
+
             currentState.copy(userDetails = newDetails)
         }
     }
@@ -50,8 +56,12 @@ class UserViewModel(private val userRepo: UserRepository) :  ViewModel() {
             val details = uiState.value.userDetails
             val newUser = userRepo.getUserByEmail(details.email, details.password)
             if (newUser != null) {
-                _uiState.update { it.copy(loggedInUser = newUser) }
-                onSuccess(newUser)
+                try {
+                    _uiState.update { it.copy(loggedInUser = newUser) }
+                    onSuccess(newUser)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
             else {
                 Log.d("Userviewmodel", "User is not valid")

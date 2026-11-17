@@ -18,7 +18,8 @@ import com.montanainc.simpleloginscreen.entities.Equipment
 fun EquipmentListScreen(
     onBook: (Equipment) -> Unit,
     onMyRentals: () -> Unit,
-    onManager: () -> Unit = {}
+    onManager: () -> Unit = {},
+    onAbout: () -> Unit = {}
 ) {
     val vm: EquipmentViewModel = viewModel(factory = DbViewModelFactory(LocalContext.current))
     val items by vm.items.collectAsState()
@@ -34,6 +35,7 @@ fun EquipmentListScreen(
             TopAppBar(
                 title = { Text("Rental Equipment") },
                 actions = {
+                    TextButton(onClick = onAbout) { Text("About")}
                     TextButton(onClick = onManager) { Text("Manager") }
                     TextButton(onClick = onMyRentals) { Text("My Rentals") }
                 }

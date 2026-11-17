@@ -12,5 +12,7 @@ data class Rental(
     @ColumnInfo(name = "equipment_id") val equipmentId: Int,
     @ColumnInfo(name = "start_date") val startDate: Long,
     @ColumnInfo(name = "end_date") val endDate: Long,
+    @ColumnInfo(name= "special_request") val specialRequest: String = "",
+    @ColumnInfo(name= "equipment_info") val equipmentInfo: String  = "",
     val status: String = "PENDING"    // PENDING, CONFIRMED, CANCELLED, RETURNED
 )

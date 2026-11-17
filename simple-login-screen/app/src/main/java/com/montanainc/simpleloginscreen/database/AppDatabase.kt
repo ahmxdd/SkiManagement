@@ -11,7 +11,7 @@ import com.montanainc.simpleloginscreen.entities.User
 import com.montanainc.simpleloginscreen.entities.Equipment
 import com.montanainc.simpleloginscreen.entities.Rental
 
-@Database(entities = [User::class, Equipment::class, Rental::class], version = 2, exportSchema = false) //Version should increase if new columns are added. Export schema is false so that to not keep schema version history backups.
+@Database(entities = [User::class, Equipment::class, Rental::class], version = 3, exportSchema = false) //Version should increase if new columns are added. Export schema is false so that to not keep schema version history backups.
 abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun equipmentDao(): EquipmentDao

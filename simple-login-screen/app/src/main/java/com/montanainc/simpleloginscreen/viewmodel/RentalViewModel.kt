@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
+import com.montanainc.simpleloginscreen.data.EquipmentRepository
 import com.montanainc.simpleloginscreen.data.RentalRepository
 import com.montanainc.simpleloginscreen.entities.Rental
 import kotlinx.coroutines.flow.Flow
@@ -13,7 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class RentalViewModel(private val rentalRepo: RentalRepository) : ViewModel() {
+class RentalViewModel(private val rentalRepo: RentalRepository, private val equipmentDao: EquipmentRepository) : ViewModel() {
     private val _uiState = MutableStateFlow(RentalUiState())
     val uiState: StateFlow<RentalUiState> = _uiState.asStateFlow()
 
@@ -28,12 +29,20 @@ class RentalViewModel(private val rentalRepo: RentalRepository) : ViewModel() {
                 equipmentId = equipmentId,
                 startDate = System.currentTimeMillis(),
                 endDate = System.currentTimeMillis() + (daysInt * 86400000L),
-                status = "CONFIRMED"
+                status = "RESERVED",
+                specialRequest = currentState.specialRequests,
+                equipmentInfo = currentState.equipment
             )
-            rentalRepo.insertRental(rental = rental)
-            _uiState.update { it.copy(bookingId = generatedBookingId) }
-            sendAutomatedEmail(userEmail, generatedBookingId)
-            onSuccess()
+            try {
+                rentalRepo.insertRental(rental = rental)
+                equipmentDao.setStatus(equipmentId, "RESERVED")
+                _uiState.update { it.copy(bookingId = generatedBookingId) }
+
+                sendAutomatedEmail(userEmail, generatedBookingId)
+                onSuccess()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -61,11 +70,16 @@ class RentalViewModel(private val rentalRepo: RentalRepository) : ViewModel() {
         }
     }
 
+    fun updateSpecialRequests(request: String) {
+        _uiState.update { currentState ->
+            currentState.copy(specialRequests = request)
+        }
+    }
+
     fun updateAge(age: String) {
         _uiState.update { currentState ->
             currentState.copy(age = age)
         }
-
     }
 
     fun updateHeight(height: String) {
@@ -79,6 +93,11 @@ class RentalViewModel(private val rentalRepo: RentalRepository) : ViewModel() {
         return rentals
 
         }
+    fun exportCSV () {
+        viewModelScope.launch {
+            rentalRepo.getRentalExportDetails()
+        }
+    }
     private fun sendAutomatedEmail(userEmail: String, bookingId: String) {
         val emailPayLoad = hashMapOf(
             "to" to listOf(userEmail),

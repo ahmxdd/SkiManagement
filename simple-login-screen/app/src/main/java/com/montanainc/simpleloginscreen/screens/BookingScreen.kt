@@ -34,6 +34,7 @@ fun BookingScreen(
     val waiverSigned = rentalUiState.waverSigned
     val bookingId = rentalUiState.bookingId
     val equipmentRental = rentalUiState.equipment
+    val specialRequest = rentalUiState.specialRequests
 
     var showWaiver by remember { mutableStateOf(false) }
 
@@ -49,6 +50,7 @@ fun BookingScreen(
                 OutlinedTextField(age, { viewModel.updateAge(it) }, label = { Text("Age") }, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(days, { viewModel.updateDays(it) }, label = { Text("Number of days") }, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(equipmentRental, { viewModel.updateEquipment(it) }, label = { Text("Equipment you will already bring") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(specialRequest, { viewModel.updateSpecialRequests(it) }, label = { Text("Special Requests") }, modifier = Modifier.fillMaxWidth())
                 Text("Expected cost: $${"%.2f".format(cost)}")
                 
                 Row(verticalAlignment = Alignment.CenterVertically) {

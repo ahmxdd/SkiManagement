@@ -8,6 +8,7 @@ data class RentalUiState (
     val days: String = "",
     val equipment: String = "",
     val waverSigned: Boolean = false,
+    val specialRequests: String = "",
 
     val bookingId: String? = null,
     val isBookingInProgress: Boolean = false,
