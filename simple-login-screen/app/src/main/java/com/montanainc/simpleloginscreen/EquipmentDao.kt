@@ -34,6 +34,9 @@ interface EquipmentDao {
     @Query("SELECT * FROM equipment ORDER BY name")
     fun getAll(): Flow<List<Equipment>>
 
+    @Query("SELECT * FROM equipment WHERE id = :id LIMIT 1")
+    fun getById(id: Int): Flow<Equipment?>
+
     @Query("SELECT COUNT(*) FROM equipment")
     suspend fun count(): Int
 }

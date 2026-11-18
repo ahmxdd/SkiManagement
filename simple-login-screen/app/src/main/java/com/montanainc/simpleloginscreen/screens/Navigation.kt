@@ -80,11 +80,16 @@
 package com.montanainc.simpleloginscreen.screens
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.montanainc.simpleloginscreen.database.AppDatabase
 
 // TESTING ONLY: true = skip login and open the equipment screen as a fake user.
 // Set to false before committing and pushing.
@@ -139,11 +144,17 @@ fun Navigation() {
                 navArgument("email") { type = NavType.StringType }
             )
         ) { backStackEntry ->
-            val equipmentId = backStackEntry.arguments?.getInt("equipmentId")
+            val equipmentId = backStackEntry.arguments?.getInt("equipmentId") ?: 0
             val userId = backStackEntry.arguments?.getInt("userId") ?: 0
             val email = backStackEntry.arguments?.getString("email") ?: ""
+            // Look the item up in the database so equipment added by managers can be booked too
+            val context = LocalContext.current
+            val equipmentFlow = remember(equipmentId) {
+                AppDatabase.getDatabase(context).equipmentDao().getById(equipmentId)
+            }
+            val equipment by equipmentFlow.collectAsState(initial = null)
             BookingScreen(
-                equipment = sampleEquipment.find { it.id == equipmentId },
+                equipment = equipment,
                 onDone = { navController.popBackStack() },
                 userId = userId,
                 userEmail = email

@@ -1,5 +1,6 @@
 package com.montanainc.simpleloginscreen.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,6 +17,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -33,6 +35,7 @@ fun SignupScreen(
     navController: NavHostController,
     viewModel: UserViewModel = viewModel(factory = AppViewModelProvider.Factory)) {
     val signupUiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
     Surface(
         color = Color.White,
         modifier = Modifier
@@ -101,7 +104,9 @@ fun SignupScreen(
                     action = "Register",
                     navController,
                     onButtonClicked = {
-                        viewModel.registerUser {
+                        viewModel.registerUser(
+                            onError = { msg -> Toast.makeText(context, msg, Toast.LENGTH_LONG).show() }
+                        ) {
                             navController.navigate("Login")
                         }
                     }

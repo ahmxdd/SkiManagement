@@ -1,8 +1,8 @@
 package com.montanainc.simpleloginscreen.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.montanainc.simpleloginscreen.data.EquipmentRepository
 import com.montanainc.simpleloginscreen.data.RentalRepository
@@ -13,6 +13,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+// Only bookings that haven't been picked up yet can be cancelled
+val CANCELLABLE_STATUSES = setOf("CONFIRMED", "RESERVED")
 
 class RentalViewModel(private val rentalRepo: RentalRepository, private val equipmentDao: EquipmentRepository) : ViewModel() {
     private val _uiState = MutableStateFlow(RentalUiState())
@@ -47,9 +50,16 @@ class RentalViewModel(private val rentalRepo: RentalRepository, private val equi
     }
 
 
-    fun cancelRental(rentalId: Int) {
+    // Cancels a booking that hasn't been picked up yet and puts the equipment back on the shelf
+    fun cancelRental(rental: Rental) {
+        if (rental.status !in CANCELLABLE_STATUSES) return
         viewModelScope.launch {
-            rentalRepo.setStatus(rentalId, "CANCELLED")
+            try {
+                rentalRepo.setStatus(rental.id, "CANCELLED")
+                equipmentDao.setStatus(rental.equipmentId, "AVAILABLE")
+            } catch (e: Exception) {
+                Log.e("RentalViewModel", "Failed to cancel rental ${rental.id}", e)
+            }
         }
     }
 

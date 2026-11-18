@@ -13,6 +13,8 @@ class OfflineUserRepository (private val userDao: UserDao) : UserRepository {
         password: String
     ): User? = userDao.getUserByEmail(email, password)
 
+    override suspend fun findByEmail(email: String): User? = userDao.findByEmail(email)
+
 
     override suspend fun insertUser(user: User) = userDao.insertUser(user)
 

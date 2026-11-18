@@ -23,24 +23,29 @@ class UserViewModel(private val userRepo: UserRepository) :  ViewModel() {
 
     // Called when the user clicks on "Register"
 
-    fun registerUser(onSuccess: () -> Unit) {
+    fun registerUser(onError: (String) -> Unit = {}, onSuccess: () -> Unit) {
 
             viewModelScope.launch {
                 val details = uiState.value.userDetails
+                val email = details.email.trim()
                 val user = User(
                     firstName = details.firstName,
                     lastName = details.lastName,
-                    email = details.email,
+                    email = email,
                     phoneNumber = details.phoneNumber,
                     password = details.password
                 )
-                if (userRepo.getUserByEmail(details.email, details.password) == null) {
-                    try {
-                        userRepo.insertUser(user)
-                        onSuccess()
-                    } catch (e: Exception) {
-                        e.printStackTrace()
+                try {
+                    // One account per email, whatever password was typed
+                    if (userRepo.findByEmail(email) != null) {
+                        onError("An account with this email already exists.")
+                        return@launch
                     }
+                    userRepo.insertUser(user)
+                    onSuccess()
+                } catch (e: Exception) {
+                    Log.e("UserViewModel", "Failed to register user", e)
+                    onError("Couldn't create your account. Please try again.")
                 }
             }
     }

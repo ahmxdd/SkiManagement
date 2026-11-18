@@ -34,10 +34,24 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
     }
 }
 
-// Adds the booking form's special request and equipment info to rentals
+// Adds the booking form's special request and equipment info to rentals.
+// Two different "version 3" databases exist (Sprint 4 tables vs. the new rental columns),
+// so this migration fills in whichever parts are missing instead of assuming one of them.
 val MIGRATION_3_4 = object : Migration(3, 4) {
     override fun migrate(db: SupportSQLiteDatabase) {
-        db.execSQL("ALTER TABLE `rental` ADD COLUMN `special_request` TEXT NOT NULL DEFAULT ''")
-        db.execSQL("ALTER TABLE `rental` ADD COLUMN `equipment_info` TEXT NOT NULL DEFAULT ''")
+        MIGRATION_2_3.migrate(db) // only CREATE ... IF NOT EXISTS, so safe to re-run
+        addColumnIfMissing(db, "rental", "special_request", "TEXT NOT NULL DEFAULT ''")
+        addColumnIfMissing(db, "rental", "equipment_info", "TEXT NOT NULL DEFAULT ''")
     }
+}
+
+private fun addColumnIfMissing(db: SupportSQLiteDatabase, table: String, column: String, definition: String) {
+    var exists = false
+    db.query("PRAGMA table_info(`$table`)").use { cursor ->
+        val nameIndex = cursor.getColumnIndexOrThrow("name")
+        while (cursor.moveToNext()) {
+            if (cursor.getString(nameIndex) == column) exists = true
+        }
+    }
+    if (!exists) db.execSQL("ALTER TABLE `$table` ADD COLUMN `$column` $definition")
 }

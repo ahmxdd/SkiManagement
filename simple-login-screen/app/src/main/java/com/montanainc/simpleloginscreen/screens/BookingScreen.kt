@@ -98,7 +98,7 @@ fun BookingScreen(
                             userEmail = userEmail
                         )
                     },
-                    enabled = waiverSigned && height.isNotBlank() && age.isNotBlank() && (days.toIntOrNull() ?: 0) > 0,
+                    enabled = equipment != null && waiverSigned && height.isNotBlank() && age.isNotBlank() && (days.toIntOrNull() ?: 0) > 0,
                     modifier = Modifier.fillMaxWidth()
                 ) { Text("Confirm Booking") }
             } else {

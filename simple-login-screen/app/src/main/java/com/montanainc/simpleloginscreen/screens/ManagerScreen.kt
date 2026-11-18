@@ -135,8 +135,8 @@ private fun RentalsTab(rentals: List<RentalSchedule>, onCheckIn: (RentalSchedule
                 Column(Modifier.padding(16.dp)) {
                     Text(r.itemName, style = MaterialTheme.typography.titleMedium)
                     Text("Customer: ${r.customer}")
-                    Text("Equipment Owned: ${r.equipment}")
-                    Text("Special Request: ${r.request}")
+                    if (r.equipment.isNotBlank()) Text("Equipment Owned: ${r.equipment}")
+                    if (r.request.isNotBlank()) Text("Special Request: ${r.request}")
                     Text("Booking ${r.bookingId} · ${r.status} · ${money(r.totalCost)}")
                     if (r.status in CHECK_IN_STATUSES) {
                         Spacer(Modifier.height(8.dp))

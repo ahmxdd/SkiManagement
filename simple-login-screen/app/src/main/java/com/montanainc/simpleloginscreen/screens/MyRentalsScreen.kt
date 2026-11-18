@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.montanainc.simpleloginscreen.viewmodel.AppViewModelProvider
+import com.montanainc.simpleloginscreen.viewmodel.CANCELLABLE_STATUSES
 import com.montanainc.simpleloginscreen.viewmodel.RentalViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,9 +40,9 @@ fun MyRentalsScreen(userId: Int, onBack: () -> Unit, viewModel: RentalViewModel 
                             Text("Equipment ${rental.equipmentId}", style = MaterialTheme.typography.titleMedium)
                             Text("Booking ${rental.bookingId} · ${rental.status}")
                         }
-                        if (rental.status != "CANCELLED") {
+                        if (rental.status in CANCELLABLE_STATUSES) {
                             OutlinedButton(onClick = {
-                                viewModel.cancelRental(rentalId = rental.id)
+                                viewModel.cancelRental(rental)
                             }) { Text("Cancel") }
                         }
 

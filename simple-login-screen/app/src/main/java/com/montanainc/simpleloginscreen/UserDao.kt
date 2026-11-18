@@ -23,6 +23,10 @@ interface UserDao {
         SELECT * FROM users WHERE email = :email AND password = :password LIMIT 1
     """)
     suspend fun getUserByEmail(email: String, password: String): User?
+
+    @Query("SELECT * FROM users WHERE email = :email COLLATE NOCASE LIMIT 1")
+    suspend fun findByEmail(email: String): User?
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertUser(user: User)
 
